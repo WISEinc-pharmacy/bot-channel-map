@@ -244,7 +244,7 @@ auth.onAuthStateChanged(async user=>{
   }
   if(!ALLOW.length) await loadAllowlist();
   const email=(user.email||'').toLowerCase();
-  if(ALLOW.includes(email)){
+  if(ALLOW.includes(email) && user.emailVerified){
     document.body.classList.remove('locked');
     document.getElementById('gate').style.display='none';
   }else{
