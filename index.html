@@ -21,7 +21,7 @@
 body{font-family:var(--font-family); background:var(--color-bg); color:var(--color-text); line-height:1.6; padding-bottom:64px;}
 :focus-visible{outline:3px solid var(--color-primary); outline-offset:2px; border-radius:4px;}
 
-header{background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff; padding:var(--space-8) var(--space-6);}
+header{background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff; padding:var(--space-8) var(--space-6); position:sticky; top:0; z-index:200;}
 .wrap{max-width:1240px; margin:0 auto; padding:0 var(--space-6);}
 header h1{font-size:var(--text-3xl); font-weight:800; letter-spacing:.02em;}
 header p{opacity:.9; margin-top:var(--space-2); font-size:var(--text-sm);}
@@ -86,6 +86,17 @@ tbody tr:hover{background:#f8fafc;}
 .src{font-family:ui-monospace,monospace; font-size:11px; color:#94a3b8;}
 .star{color:#f59e0b; font-weight:800;}
 .hl{background:#fffbeb;}
+
+/* Bot別折りたたみグループ */
+.bot-group{border:1px solid var(--color-border); border-radius:var(--radius-md); margin-bottom:var(--space-3); overflow:hidden;}
+.bot-group-hdr{display:flex; align-items:center; gap:var(--space-2); padding:var(--space-3) var(--space-4); background:#eef2ff; cursor:pointer; user-select:none;}
+.bot-group-hdr:hover{background:#e0e7ff;}
+.bot-group-name{font-weight:800; font-size:var(--text-base); color:#4338ca;}
+.bot-group-cnt{font-size:var(--text-xs); color:var(--color-text-sub); background:#fff; border:1px solid #c7d2fe; border-radius:var(--radius-full); padding:1px 10px;}
+.bot-group-arrow{margin-left:auto; color:var(--color-text-sub); font-size:var(--text-sm); transition:transform .2s;}
+.bot-group-hdr[aria-expanded="false"] .bot-group-arrow{transform:rotate(-90deg);}
+.bot-group-body{padding:var(--space-3); display:flex; flex-direction:column; gap:var(--space-2);}
+.bot-group-body.collapsed{display:none;}
 
 /* チャンネル別 */
 .chcard{border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-3);}
@@ -329,18 +340,46 @@ function stats(){
 
 function pass(r){return filter==='all'||r.t===filter;}
 
+function toggleGroup(hdr){
+  const body=hdr.nextElementSibling;
+  const open=hdr.getAttribute('aria-expanded')==='true';
+  hdr.setAttribute('aria-expanded',open?'false':'true');
+  body.classList.toggle('collapsed',open);
+}
+
 function renderFlow(){
   const el=document.getElementById('flow');
-  el.innerHTML=RULES.filter(pass).map(r=>{
-    const ch=CH[r.ch];
-    return `<div class="flowrow">
-      <div class="node n-trigger">${T[r.t].split(' ')[0]} ${r.trig}</div>
-      <div class="arrow">▶</div>
-      <div class="node n-bot">${r.bot}</div>
-      <div class="arrow">▶</div>
-      <div class="node n-ch">${r.star?'<span class="star">★</span> ':''}#${ch.n}<small>${ch.id} ／ ${r.c}</small></div>
+  const filtered=RULES.filter(pass);
+  if(!filtered.length){el.innerHTML='<p class="sub">該当なし</p>';return;}
+
+  // Botごとにグループ化（出現順を保持）
+  const byBot={}, botOrder=[];
+  filtered.forEach(r=>{
+    if(!byBot[r.bot]){byBot[r.bot]=[];botOrder.push(r.bot);}
+    byBot[r.bot].push(r);
+  });
+
+  el.innerHTML=botOrder.map(botName=>{
+    const rows=byBot[botName];
+    const flowRows=rows.map(r=>{
+      const ch=CH[r.ch];
+      return `<div class="flowrow">
+        <div class="node n-trigger">${T[r.t].split(' ')[0]} ${r.trig}</div>
+        <div class="arrow">▶</div>
+        <div class="node n-bot">${r.bot}</div>
+        <div class="arrow">▶</div>
+        <div class="node n-ch">${r.star?'<span class="star">★</span>':''} #${ch.n}<small>${ch.id} ／ ${r.c}</small></div>
+      </div>`;
+    }).join('');
+    return `<div class="bot-group">
+      <div class="bot-group-hdr" aria-expanded="true" onclick="toggleGroup(this)">
+        <span class="bot-group-name">🤖 ${botName}</span>
+        <span class="bot-group-cnt">${rows.length}件</span>
+        <span class="bot-group-arrow">▲</span>
+      </div>
+      <div class="bot-group-body">${flowRows}</div>
     </div>`;
-  }).join('')||'<p class="sub">該当なし</p>';
+  }).join('');
 }
 
 function renderTable(){
