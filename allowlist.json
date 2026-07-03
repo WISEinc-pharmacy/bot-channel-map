@@ -1,0 +1,7 @@
+{
+  "_comment": "このダッシュボードを閲覧できるGoogleアカウント。ここに追加したメールのみ表示可（Googleログインで本人確認）。編集後にpushすれば反映されます。",
+  "allowed": [
+    "director@wise-jmco.com",
+    "info@wise-jmco.com"
+  ]
+}

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bot投稿ルール一覧 | ワイズグループ</title>
+<style>
+:root{
+  --color-primary:#3b82f6; --color-secondary:#6366f1; --color-accent:#06b6d4;
+  --color-bg:#f8fafc; --color-surface:#ffffff; --color-text:#1e293b;
+  --color-text-sub:#64748b; --color-border:#e2e8f0;
+  --color-mail:#3b82f6; --color-cron:#8b5cf6; --color-chat:#10b981;
+  --color-fax:#f59e0b; --color-line:#22c55e; --color-incident:#ef4444; --color-dm:#ec4899;
+  --font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;
+  --text-xs:0.75rem; --text-sm:0.875rem; --text-base:1rem; --text-lg:1.125rem;
+  --text-xl:1.25rem; --text-2xl:1.5rem; --text-3xl:1.875rem;
+  --space-2:8px; --space-3:12px; --space-4:16px; --space-6:24px; --space-8:32px;
+  --radius-sm:6px; --radius-md:10px; --radius-lg:16px; --radius-full:9999px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:var(--font-family); background:var(--color-bg); color:var(--color-text); line-height:1.6; padding-bottom:64px;}
+:focus-visible{outline:3px solid var(--color-primary); outline-offset:2px; border-radius:4px;}
+
+header{background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff; padding:var(--space-8) var(--space-6);}
+.wrap{max-width:1240px; margin:0 auto; padding:0 var(--space-6);}
+header h1{font-size:var(--text-3xl); font-weight:800; letter-spacing:.02em;}
+header p{opacity:.9; margin-top:var(--space-2); font-size:var(--text-sm);}
+.updated{opacity:.75; font-size:var(--text-xs); margin-top:var(--space-3);}
+
+.stats{display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-4); margin-top:var(--space-6);}
+@media(min-width:768px){.stats{grid-template-columns:repeat(4,1fr);}}
+.stat{background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:var(--radius-lg); padding:var(--space-4);}
+.stat b{display:block; font-size:var(--text-3xl); font-weight:800; line-height:1.1;}
+.stat span{font-size:var(--text-xs); opacity:.9;}
+
+main{max-width:1240px; margin:0 auto; padding:var(--space-8) var(--space-6);}
+.card{background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); box-shadow:0 1px 3px rgba(0,0,0,.06); padding:var(--space-6); margin-bottom:var(--space-6);}
+h2{font-size:var(--text-xl); font-weight:700; margin-bottom:var(--space-2); display:flex; align-items:center; gap:8px;}
+.sub{color:var(--color-text-sub); font-size:var(--text-sm); margin-bottom:var(--space-4);}
+
+/* タブ */
+.tabs{display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-6);}
+.tab{background:var(--color-surface); border:1px solid var(--color-border); color:var(--color-text-sub); padding:10px 20px; border-radius:var(--radius-full); font-size:var(--text-sm); font-weight:700; cursor:pointer; transition:all .2s ease; min-height:44px;}
+.tab:hover{border-color:var(--color-primary); color:var(--color-primary);}
+.tab.active{background:var(--color-primary); color:#fff; border-color:var(--color-primary); box-shadow:0 4px 14px rgba(59,130,246,.35);}
+
+/* フィルタチップ */
+.filters{display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-4); align-items:center;}
+.flabel{font-size:var(--text-xs); color:var(--color-text-sub); font-weight:700; margin-right:4px;}
+.chip{border:1px solid var(--color-border); background:var(--color-surface); border-radius:var(--radius-full); padding:6px 14px; font-size:var(--text-xs); font-weight:700; cursor:pointer; transition:all .15s ease; min-height:36px; color:var(--color-text-sub);}
+.chip.active{color:#fff;}
+.chip[data-t="all"].active{background:#334155; border-color:#334155;}
+.chip[data-t="mail"].active{background:var(--color-mail); border-color:var(--color-mail);}
+.chip[data-t="cron"].active{background:var(--color-cron); border-color:var(--color-cron);}
+.chip[data-t="chat"].active{background:var(--color-chat); border-color:var(--color-chat);}
+.chip[data-t="fax"].active{background:var(--color-fax); border-color:var(--color-fax);}
+.chip[data-t="line"].active{background:var(--color-line); border-color:var(--color-line);}
+.chip[data-t="incident"].active{background:var(--color-incident); border-color:var(--color-incident);}
+.chip[data-t="dm"].active{background:var(--color-dm); border-color:var(--color-dm);}
+
+/* 概念図（起点→Bot→チャンネル） */
+.flow{display:grid; grid-template-columns:1fr; gap:var(--space-3);}
+.flowrow{display:grid; grid-template-columns:1fr; gap:var(--space-2); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-3); background:#fbfdff;}
+@media(min-width:860px){.flowrow{grid-template-columns:190px 24px 1fr 24px 1fr; align-items:center; gap:0;}}
+.node{border-radius:var(--radius-md); padding:10px 14px; font-size:var(--text-sm); font-weight:700;}
+.n-trigger{background:#f1f5f9; color:#334155; border:1px dashed #cbd5e1;}
+.n-bot{background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe;}
+.n-ch{background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc; font-size:var(--text-xs);}
+.arrow{text-align:center; color:#94a3b8; font-weight:800; display:none;}
+@media(min-width:860px){.arrow{display:block;}}
+.n-ch small{display:block; color:var(--color-text-sub); font-weight:500; font-size:11px; margin-top:2px;}
+
+/* テーブル */
+.tablewrap{overflow-x:auto; border:1px solid var(--color-border); border-radius:var(--radius-md);}
+table{width:100%; border-collapse:collapse; min-width:820px;}
+th,td{text-align:left; padding:12px 14px; font-size:var(--text-sm); border-bottom:1px solid var(--color-border); vertical-align:top;}
+th{background:#f1f5f9; color:#475569; font-weight:700; font-size:var(--text-xs); position:sticky; top:0; white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#f8fafc;}
+.botname{font-weight:800; white-space:nowrap;}
+.badge{display:inline-block; padding:3px 10px; border-radius:var(--radius-full); font-size:11px; font-weight:800; color:#fff; white-space:nowrap;}
+.b-mail{background:var(--color-mail);} .b-cron{background:var(--color-cron);} .b-chat{background:var(--color-chat);}
+.b-fax{background:var(--color-fax);} .b-line{background:var(--color-line);} .b-incident{background:var(--color-incident);} .b-dm{background:var(--color-dm);}
+.chname{font-weight:700; color:#0e7490;}
+.chid{font-family:ui-monospace,monospace; font-size:11px; color:var(--color-text-sub);}
+.src{font-family:ui-monospace,monospace; font-size:11px; color:#94a3b8;}
+.star{color:#f59e0b; font-weight:800;}
+.hl{background:#fffbeb;}
+
+/* チャンネル別 */
+.chcard{border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-3);}
+.chcard h3{font-size:var(--text-base); color:#0e7490; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.chcard .chid{margin-left:auto;}
+.chcard ul{list-style:none; margin-top:var(--space-2); display:flex; flex-direction:column; gap:6px;}
+.chcard li{font-size:var(--text-sm); padding-left:0;}
+.hide{display:none !important;}
+
+.note{background:#fffbeb; border:1px solid #fde68a; border-radius:var(--radius-md); padding:var(--space-4); font-size:var(--text-sm);}
+.note b{color:#b45309;}
+.legend{display:flex; gap:var(--space-3); flex-wrap:wrap; margin-top:var(--space-3);}
+.legend span{display:inline-flex; align-items:center; gap:6px; font-size:var(--text-xs); color:var(--color-text-sub);}
+.dot{width:12px; height:12px; border-radius:3px; display:inline-block;}
+footer{max-width:1240px; margin:0 auto; padding:0 var(--space-6) var(--space-8); color:var(--color-text-sub); font-size:var(--text-xs);}
+
+/* 認証ゲート */
+#gate{position:fixed; inset:0; z-index:9999; background:linear-gradient(135deg,#3b82f6,#6366f1); display:flex; align-items:center; justify-content:center; padding:24px;}
+#gate .box{background:#fff; border-radius:var(--radius-lg); padding:40px 32px; max-width:420px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.25);}
+#gate h2{font-size:var(--text-2xl); color:var(--color-text); margin-bottom:8px; justify-content:center;}
+#gate p{color:var(--color-text-sub); font-size:var(--text-sm); margin-bottom:24px;}
+#gate button{background:var(--color-primary); color:#fff; border:none; padding:14px 28px; border-radius:var(--radius-md); font-size:var(--text-base); font-weight:700; cursor:pointer; min-height:48px; transition:all .2s ease;}
+#gate button:hover{transform:translateY(-2px); box-shadow:0 6px 20px rgba(59,130,246,.45);}
+#gate .err{color:var(--color-incident); font-weight:700; font-size:var(--text-sm); margin-bottom:16px; min-height:20px;}
+#gate .sub2{font-size:var(--text-xs); color:#94a3b8; margin-top:20px;}
+body.locked{overflow:hidden;}
+body.locked > header, body.locked > main, body.locked > footer{filter:blur(6px); pointer-events:none;}
+</style>
+</head>
+<body class="locked">
+
+<div id="gate">
+  <div class="box">
+    <h2>🔐 Bot投稿ルール</h2>
+    <p>このダッシュボードは許可されたアカウントのみ閲覧できます。<br>Googleアカウントでログインしてください。</p>
+    <div class="err" id="gateErr"></div>
+    <button id="loginBtn" onclick="doLogin()">Googleでログイン</button>
+    <div class="sub2" id="gateUser"></div>
+  </div>
+</div>
+<header>
+  <div class="wrap">
+    <h1>🤖 Bot投稿ルール一覧</h1>
+    <p>社内Botが「いつ・どのSlackチャンネルに・何を」投稿しているかの全体図</p>
+    <div class="stats" id="stats"></div>
+    <div class="updated">最終更新: 2026-07-03 ／ 出典: 各Botのソースコード実装</div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" data-view="flow">🗺 概念図</button>
+    <button class="tab" data-view="table">📋 ルール一覧</button>
+    <button class="tab" data-view="channel">#️⃣ チャンネル別</button>
+  </div>
+
+  <div class="filters">
+    <span class="flabel">トリガーで絞込:</span>
+    <button class="chip active" data-t="all">すべて</button>
+    <button class="chip" data-t="mail">📧 メール受信</button>
+    <button class="chip" data-t="cron">⏰ 定期実行</button>
+    <button class="chip" data-t="chat">💬 対話/ボタン</button>
+    <button class="chip" data-t="fax">📠 FAX着信</button>
+    <button class="chip" data-t="line">📱 LINE</button>
+    <button class="chip" data-t="incident">🚨 障害</button>
+    <button class="chip" data-t="dm">✉️ DM</button>
+  </div>
+
+  <!-- 概念図 -->
+  <section class="card" id="view-flow">
+    <h2>🗺 概念図：起点 → Bot → 投稿先チャンネル</h2>
+    <p class="sub">左の「起点（トリガー）」が発生すると、Botが対応するチャンネルへ投稿します。★は今回ご相談の対象です。</p>
+    <div class="flow" id="flow"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--color-mail)"></i>メール受信</span>
+      <span><i class="dot" style="background:var(--color-cron)"></i>定期実行</span>
+      <span><i class="dot" style="background:var(--color-chat)"></i>対話/ボタン</span>
+      <span><i class="dot" style="background:var(--color-fax)"></i>FAX着信</span>
+      <span><i class="dot" style="background:var(--color-line)"></i>LINE</span>
+      <span><i class="dot" style="background:var(--color-incident)"></i>障害通知</span>
+      <span><i class="dot" style="background:var(--color-dm)"></i>DM</span>
+    </div>
+  </section>
+
+  <!-- テーブル -->
+  <section class="card hide" id="view-table">
+    <h2>📋 ルール一覧</h2>
+    <p class="sub">投稿1件ごとのルール。チャンネルID・実装ファイルまで確認できます。</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Bot</th><th>トリガー</th><th>投稿先チャンネル</th><th>投稿内容</th><th>実装</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- チャンネル別 -->
+  <section class="card hide" id="view-channel">
+    <h2>#️⃣ チャンネル別ビュー</h2>
+    <p class="sub">各チャンネルに「誰が・何を」投稿しているか。逆引き用。</p>
+    <div id="channels"></div>
+  </section>
+
+  <section class="note">
+    <b>⚠️ 気づいた点（今回のご相談に関連）</b>
+    <ul style="margin-top:8px; padding-left:20px;">
+      <li>★<b>年間カレンダー業務リマインド</b>は現在 <b>カイゼン相談所</b>（めるぼ専用ch）へ投稿されています。今回これを <b>管理部メインチャット(G01QFQNNRMG)</b> へ再投稿しました。</li>
+      <li>それ以外の月次リマインド（KOT・請求書格納・業務数字入力など）は現在 <b>「mailボットテストチャンネル」</b>（C0AP51GGHM3）へ投稿されています。テスト用チャンネル名のままなので、本番運用先の見直し余地があります。</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  ※ はじめくん(開発ch)・eFax(足立)・MOVFAX(柏)は別Slackワークスペースのため、チャンネルIDは本ワークスペースでは解決不可（別WS表記）。
+</footer>
+
+<!-- Firebase Auth（wise-budget-26d4c を認証にのみ流用。Firestoreは不使用） -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+// ===== 認証ゲート（Googleログイン＋allowlist.json名簿） =====
+firebase.initializeApp({
+  apiKey: "AIzaSyAr30JXa0zLWJzUQsM_ulu97cyEG9t65TU",
+  authDomain: "wise-budget-26d4c.firebaseapp.com",
+  projectId: "wise-budget-26d4c"
+});
+const auth = firebase.auth();
+let ALLOW = [];
+
+function doLogin(){
+  const btn=document.getElementById('loginBtn');
+  btn.disabled=true; btn.textContent='ログイン中...';
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .catch(e=>{ document.getElementById('gateErr').textContent='ログインに失敗しました: '+e.message; })
+    .finally(()=>{ btn.disabled=false; btn.textContent='Googleでログイン'; });
+}
+function doLogout(){ auth.signOut(); }
+
+async function loadAllowlist(){
+  try{
+    const r=await fetch('allowlist.json',{cache:'no-store'});
+    const j=await r.json();
+    ALLOW=(j.allowed||[]).map(e=>e.toLowerCase());
+  }catch(e){ ALLOW=[]; }
+}
+
+auth.onAuthStateChanged(async user=>{
+  const err=document.getElementById('gateErr');
+  const gu=document.getElementById('gateUser');
+  const btn=document.getElementById('loginBtn');
+  if(!user){
+    document.body.classList.add('locked');
+    document.getElementById('gate').style.display='flex';
+    err.textContent=''; gu.textContent=''; btn.textContent='Googleでログイン'; btn.onclick=doLogin;
+    return;
+  }
+  if(!ALLOW.length) await loadAllowlist();
+  const email=(user.email||'').toLowerCase();
+  if(ALLOW.includes(email)){
+    document.body.classList.remove('locked');
+    document.getElementById('gate').style.display='none';
+  }else{
+    document.body.classList.add('locked');
+    document.getElementById('gate').style.display='flex';
+    err.textContent='このアカウント（'+user.email+'）は閲覧が許可されていません。';
+    gu.textContent='別アカウントでログインし直す場合はこちら';
+    btn.textContent='ログアウト'; btn.onclick=doLogout;
+  }
+});
+loadAllowlist();
+</script>
+
+<script>
+const CH={
+  keiri:{n:'管理部_経理（請求）',id:'C0AQC33TN00'},
+  kyujin:{n:'mailボット_求人',id:'C0AP2BC5F6K'},
+  ma:{n:'mailボット_ma',id:'C0APHQJ6DMY'},
+  jinji:{n:'mailボット_人事',id:'C0AQQKNUFU3'},
+  joseikin:{n:'助成金補助金',id:'C0AT19XKHL3'},
+  other:{n:'mailボットテストチャンネル',id:'C0AP51GGHM3'},
+  ivry:{n:'ivry電話着信',id:'C0AQY2S9Z5L'},
+  kaizen:{n:'カイゼン相談所',id:'C0APMGY19DJ'},
+  yakushoku:{n:'役職者_全体連絡',id:'C04NL1L77RC'},
+  recruit:{n:'管理部_求人確認',id:'C0514E9M3QR'},
+  academic:{n:'学術研修_企画運営室',id:'C07CGFUFDU5'},
+  soumu_main:{n:'管理部メインチャット',id:'G01QFQNNRMG'},
+  honbu:{n:'本部WS 開発ch',id:'別WS(本部)'},
+  efax:{n:'足立 FAX着信ch',id:'別WS(足立)'},
+  movfax:{n:'柏 FAX着信ch',id:'.env設定'},
+  line:{n:'LINE転送先',id:'Webhook設定'},
+  dm:{n:'山内さん DM',id:'DM'},
+};
+const T={mail:'📧 メール受信',cron:'⏰ 定期実行',chat:'💬 対話/ボタン',fax:'📠 FAX着信',line:'📱 LINE',incident:'🚨 障害検知',dm:'✉️ DM'};
+const RULES=[
+  // めるぼ（メール振り分け）
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（経理/請求）',ch:'keiri',c:'経理・請求メールの要約＋全文＋添付',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（求人）',ch:'kyujin',c:'求人系メール（※結yuiへ移行中）',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（M&A）',ch:'ma',c:'M&A・事業関連メール',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（人事）',ch:'jinji',c:'人事メール（スタッフ別スレッドに紐付け）',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（助成金）',ch:'joseikin',c:'助成金・補助金メール',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→分類外（その他）',ch:'other',c:'分類できないメール',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'ivry電話着信メール受信',ch:'ivry',c:'電話着信（ivry）通知',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'incident',trig:'システム障害・異常検知',ch:'yakushoku',c:'インシデント通知',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'chat',trig:'メンション／ボタン押下（カイゼンch内）',ch:'kaizen',c:'返信案・要約・メール検索・振り分け変更',src:'kaizen_listener.mjs'},
+  {bot:'めるぼ',t:'cron',trig:'定期実行（毎月6-8/10/15/20日・第1/5営業日）',ch:'other',c:'月次業務リマインド（KOT/請求書/業務数字/書類送付ほか）',src:'monthly_reminder.mjs'},
+  {bot:'めるぼ',t:'cron',trig:'定期実行（毎月第1営業日）',ch:'kaizen',c:'★年間カレンダー業務リマインド',src:'monthly_reminder.mjs',star:true},
+  // 結yui
+  {bot:'結〈yui〉',t:'mail',trig:'recruit@メール受信',ch:'recruit',c:'求人メール要約・返信案・PDF抽出',src:'recruit_bot.mjs'},
+  {bot:'結〈yui〉',t:'cron',trig:'定期巡回（5分/1時間・週次）',ch:'recruit',c:'未返信リマインド・週次採用ダイジェスト',src:'recruit_bot.mjs'},
+  {bot:'結〈yui〉',t:'chat',trig:'メンション／ボタン・モーダル',ch:'recruit',c:'メニュー・面接調整・採用確定処理',src:'recruit_bot.mjs'},
+  {bot:'結〈yui〉',t:'chat',trig:'不具合報告ボタン',ch:'kaizen',c:'不具合報告の転送',src:'recruit_bot.mjs'},
+  // 経子
+  {bot:'経子',t:'mail',trig:'accounts@メール受信（5分ポーリング）',ch:'keiri',c:'請求メール要約＋全文＋添付',src:'accounts_bot.mjs'},
+  {bot:'経子',t:'chat',trig:'メンション／返信作成ボタン',ch:'keiri',c:'返信案・送信結果通知',src:'accounts_bot.mjs'},
+  // 博士
+  {bot:'博士〈はかせ〉',t:'mail',trig:'academic@メール受信（5分ポーリング）',ch:'academic',c:'学術メール要約＋全文＋添付',src:'hakase_bot.mjs'},
+  {bot:'博士〈はかせ〉',t:'chat',trig:'メンション／返信・面談ボタン',ch:'academic',c:'返信案（承認ゲート経由）・面談設定',src:'hakase_bot.mjs'},
+  // はじめくん
+  {bot:'はじめくん',t:'chat',trig:'開発依頼・メンション',ch:'honbu',c:'開発依頼の受付・記録・通知',src:'dev_kun.mjs'},
+  {bot:'はじめくん',t:'chat',trig:'レビュー依頼ボタン',ch:'kaizen',c:'レビュー通知（本部WSカイゼンch）',src:'dev_kun.mjs'},
+  {bot:'はじめくん',t:'dm',trig:'オーナー通知',ch:'dm',c:'開発チーム・オーナーへの通知',src:'dev_kun.mjs'},
+  // FAX / LINE
+  {bot:'eFax（足立）',t:'fax',trig:'FAX着信メール検知',ch:'efax',c:'着信FAX PDFアップロード＋通知',src:'adachi_efax_bot/main.py'},
+  {bot:'MOVFAX（柏）',t:'fax',trig:'MOVFAX着信メール検知',ch:'movfax',c:'着信FAX PDF＋Gemini要約',src:'movfax_kashiwa/main.py'},
+  {bot:'LINE転送',t:'line',trig:'LINEメッセージ受信（Webhook）',ch:'line',c:'LINEメッセージの要約を転送',src:'line_to_slack/server.mjs'},
+];
+
+let filter='all';
+
+function stats(){
+  const bots=new Set(RULES.map(r=>r.bot)).size;
+  const chs=new Set(RULES.map(r=>r.ch)).size;
+  const rules=RULES.length;
+  const trigs=new Set(RULES.map(r=>r.t)).size;
+  document.getElementById('stats').innerHTML=
+   `<div class="stat"><b>${bots}</b><span>稼働Bot</span></div>
+    <div class="stat"><b>${chs}</b><span>投稿先チャンネル</span></div>
+    <div class="stat"><b>${rules}</b><span>投稿ルール</span></div>
+    <div class="stat"><b>${trigs}</b><span>トリガー種別</span></div>`;
+}
+
+function pass(r){return filter==='all'||r.t===filter;}
+
+function renderFlow(){
+  const el=document.getElementById('flow');
+  el.innerHTML=RULES.filter(pass).map(r=>{
+    const ch=CH[r.ch];
+    return `<div class="flowrow">
+      <div class="node n-trigger">${T[r.t].split(' ')[0]} ${r.trig}</div>
+      <div class="arrow">▶</div>
+      <div class="node n-bot">${r.bot}</div>
+      <div class="arrow">▶</div>
+      <div class="node n-ch">${r.star?'<span class="star">★</span> ':''}#${ch.n}<small>${ch.id} ／ ${r.c}</small></div>
+    </div>`;
+  }).join('')||'<p class="sub">該当なし</p>';
+}
+
+function renderTable(){
+  const tb=document.getElementById('tbody');
+  tb.innerHTML=RULES.filter(pass).map(r=>{
+    const ch=CH[r.ch];
+    return `<tr class="${r.star?'hl':''}">
+      <td class="botname">${r.bot}</td>
+      <td><span class="badge b-${r.t}">${T[r.t]}</span><br><span style="font-size:12px;color:#64748b">${r.trig}</span></td>
+      <td><span class="chname">${r.star?'<span class="star">★</span> ':''}#${ch.n}</span><br><span class="chid">${ch.id}</span></td>
+      <td>${r.c}</td>
+      <td class="src">${r.src}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="5" class="sub">該当なし</td></tr>';
+}
+
+function renderChannels(){
+  const el=document.getElementById('channels');
+  const byCh={};
+  RULES.filter(pass).forEach(r=>{(byCh[r.ch]=byCh[r.ch]||[]).push(r);});
+  const keys=Object.keys(byCh).sort((a,b)=>byCh[b].length-byCh[a].length);
+  el.innerHTML=keys.map(k=>{
+    const ch=CH[k]; const rs=byCh[k];
+    return `<div class="chcard">
+      <h3>#${ch.n} <span class="chid">${ch.id}</span></h3>
+      <ul>${rs.map(r=>`<li><span class="badge b-${r.t}">${r.bot}</span> ${r.c} <span class="src">（${r.trig}）</span></li>`).join('')}</ul>
+    </div>`;
+  }).join('')||'<p class="sub">該当なし</p>';
+}
+
+function renderAll(){renderFlow();renderTable();renderChannels();}
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const v=t.dataset.view;
+  ['flow','table','channel'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hide',x!==v));
+});
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active');
+  filter=c.dataset.t; renderAll();
+});
+
+stats(); renderAll();
+</script>
+</body>
+</html>
