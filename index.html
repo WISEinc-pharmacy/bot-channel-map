@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bot投稿ルール一覧 | ワイズグループ</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap');
 :root{
   --color-primary:#3b82f6; --color-secondary:#6366f1; --color-accent:#06b6d4;
   --color-bg:#f8fafc; --color-surface:#ffffff; --color-text:#1e293b;
@@ -113,6 +114,23 @@ tbody tr:hover{background:#f8fafc;}
 .dot{width:12px; height:12px; border-radius:3px; display:inline-block;}
 footer{max-width:1240px; margin:0 auto; padding:0 var(--space-6) var(--space-8); color:var(--color-text-sub); font-size:var(--text-xs);}
 
+/* Bot紹介カードグリッド */
+.bot-intro-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:var(--space-6); margin-top:var(--space-4);}
+.bot-intro-card{background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-6) var(--space-4); text-align:center; transition:transform .2s,box-shadow .2s;}
+.bot-intro-card:hover{transform:translateY(-5px); box-shadow:0 10px 28px rgba(0,0,0,.1);}
+.bot-avatar{width:90px; height:90px; border-radius:50%; margin:0 auto 14px; display:flex; align-items:center; justify-content:center; font-size:44px; line-height:1;}
+.bi-name{font-size:var(--text-lg); font-weight:800; margin-bottom:4px; color:var(--color-text);}
+.bi-role{font-size:var(--text-xs); color:var(--color-text-sub); margin-bottom:var(--space-4); font-weight:600; letter-spacing:.03em;}
+.bot-handwrite{
+  font-family:'Klee One','Hiragino Kaku Gothic ProN',cursive;
+  font-size:0.9rem; line-height:2; color:#334155;
+  background:#fefef6;
+  background-image:repeating-linear-gradient(transparent,transparent calc(2em - 1px),#dcd8b8 calc(2em - 1px),#dcd8b8 2em);
+  border:1px solid #cdc98a; border-radius:4px;
+  padding:10px 14px 10px 14px; text-align:left; min-height:96px;
+}
+.bi-count{margin-top:10px; font-size:var(--text-xs); color:#94a3b8;}
+
 /* 認証ゲート */
 #gate{position:fixed; inset:0; z-index:9999; background:linear-gradient(135deg,#3b82f6,#6366f1); display:flex; align-items:center; justify-content:center; padding:24px;}
 #gate .box{background:#fff; border-radius:var(--radius-lg); padding:40px 32px; max-width:420px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.25);}
@@ -151,6 +169,7 @@ body.locked > header, body.locked > main, body.locked > footer{filter:blur(6px);
     <button class="tab active" data-view="flow">🗺 概念図</button>
     <button class="tab" data-view="table">📋 ルール一覧</button>
     <button class="tab" data-view="channel">#️⃣ チャンネル別</button>
+    <button class="tab" data-view="bots">🤝 Bot紹介</button>
   </div>
 
   <div class="filters">
@@ -198,6 +217,13 @@ body.locked > header, body.locked > main, body.locked > footer{filter:blur(6px);
     <h2>#️⃣ チャンネル別ビュー</h2>
     <p class="sub">各チャンネルに「誰が・何を」投稿しているか。逆引き用。</p>
     <div id="channels"></div>
+  </section>
+
+  <!-- Bot紹介 -->
+  <section class="card hide" id="view-bots">
+    <h2>🤝 Bot紹介</h2>
+    <p class="sub">ワイズのSlack Botたちをご紹介します。それぞれひとこと↓</p>
+    <div class="bot-intro-grid" id="botGrid"></div>
   </section>
 
   <section class="note">
@@ -324,6 +350,49 @@ const RULES=[
   {bot:'LINE転送',t:'line',trig:'LINEメッセージ受信（Webhook）',ch:'line',c:'LINEメッセージの要約を転送',src:'line_to_slack/server.mjs'},
 ];
 
+const BOTS=[
+  {
+    name:'めるぼ', emoji:'📧', bg:'#dbeafe',
+    role:'メール管理 Bot',
+    quote:'info@に届くメール、\n全部私が受け取ってます！\n大事な連絡はすぐSlackに届けるから、\n見落としの心配はなしですよ✉️',
+  },
+  {
+    name:'結〈yui〉', emoji:'🌸', bg:'#fce7f3',
+    role:'採用専門 Bot',
+    quote:'採用まわり、ぜんぶ任せてください🌸\n求人メールの整理から面接調整まで。\n応募者さんを待たせないことが\n私のこだわりです',
+  },
+  {
+    name:'経子', emoji:'💼', bg:'#d1fae5',
+    role:'経理アシスタント Bot',
+    quote:'accounts@の請求メール、\nひとつひとつ丁寧にチェックしてます。\n経理担当さんが見やすいように\n要点まとめてお届けします！',
+  },
+  {
+    name:'博士〈はかせ〉', emoji:'🔬', bg:'#ede9fe',
+    role:'学術アシスタント Bot',
+    quote:'学会・研修・論文のお知らせ、\n見逃さないように見てますよ🔬\n学術担当の先生方、\n何かあればいつでも声かけてくださいね',
+  },
+  {
+    name:'はじめくん', emoji:'🛠️', bg:'#fef3c7',
+    role:'開発要望 Bot',
+    quote:'不具合・改善要望、\nなんでも受け付けます！\n遠慮せず気軽に声かけてね。\nチームに必ず届けるから🛠️',
+  },
+  {
+    name:'eFax（足立）', emoji:'📠', bg:'#ffedd5',
+    role:'FAX着信通知 Bot（足立）',
+    quote:'足立のFAX、届いたらすぐ教えます📠\n書類のPDFもSlackに流すから\nあとで探す手間がなくて\nラクですよ',
+  },
+  {
+    name:'MOVFAX（柏）', emoji:'📠', bg:'#ffedd5',
+    role:'FAX着信通知 Bot（柏）',
+    quote:'柏のFAX、届いたら\nGeminiで中身もチェック！📠\n何が書いてあるか、\nすぐ確認できるようにしてあります',
+  },
+  {
+    name:'LINE転送', emoji:'📱', bg:'#dcfce7',
+    role:'LINE→Slack転送 Bot',
+    quote:'LINEに来たメッセージ、\nSlackに橋渡しします📱\n取引先からの連絡、\nタイムラグなくお届けしますね',
+  },
+];
+
 let filter='all';
 
 function stats(){
@@ -410,13 +479,27 @@ function renderChannels(){
   }).join('')||'<p class="sub">該当なし</p>';
 }
 
-function renderAll(){renderFlow();renderTable();renderChannels();}
+function renderBots(){
+  const grid=document.getElementById('botGrid');
+  grid.innerHTML=BOTS.map(b=>{
+    const cnt=RULES.filter(r=>r.bot===b.name).length;
+    return `<div class="bot-intro-card">
+      <div class="bot-avatar" style="background:${b.bg}">${b.emoji}</div>
+      <div class="bi-name">${b.name}</div>
+      <div class="bi-role">${b.role}</div>
+      <div class="bot-handwrite">${b.quote.replace(/\n/g,'<br>')}</div>
+      ${cnt?`<div class="bi-count">投稿ルール ${cnt}件</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){renderFlow();renderTable();renderChannels();renderBots();}
 
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
   const v=t.dataset.view;
-  ['flow','table','channel'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hide',x!==v));
+  ['flow','table','channel','bots'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hide',x!==v));
 });
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
   document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
