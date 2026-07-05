@@ -40,10 +40,10 @@ h2{font-size:var(--text-xl); font-weight:700; margin-bottom:var(--space-2); disp
 .sub{color:var(--color-text-sub); font-size:var(--text-sm); margin-bottom:var(--space-4);}
 
 /* タブ */
-.tabs{display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-6);}
-.tab{background:var(--color-surface); border:1px solid var(--color-border); color:var(--color-text-sub); padding:10px 20px; border-radius:var(--radius-full); font-size:var(--text-sm); font-weight:700; cursor:pointer; transition:all .2s ease; min-height:44px;}
-.tab:hover{border-color:var(--color-primary); color:var(--color-primary);}
-.tab.active{background:var(--color-primary); color:#fff; border-color:var(--color-primary); box-shadow:0 4px 14px rgba(59,130,246,.35);}
+.tabs{display:flex; gap:0; flex-wrap:wrap; margin-bottom:var(--space-6); border-bottom:2px solid var(--color-border);}
+.tab{background:none; border:none; border-bottom:3px solid transparent; color:var(--color-text-sub); padding:10px 20px; font-size:var(--text-sm); font-weight:600; cursor:pointer; transition:all .2s ease; min-height:44px; margin-bottom:-2px;}
+.tab:hover{color:var(--color-primary); border-bottom-color:var(--color-primary);}
+.tab.active{color:var(--color-primary); border-bottom-color:var(--color-primary); font-weight:700;}
 
 /* フィルタチップ */
 .filters{display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-4); align-items:center;}
@@ -166,10 +166,10 @@ body.locked > header, body.locked > main, body.locked > footer{filter:blur(6px);
 
 <main>
   <div class="tabs">
+    <button class="tab active" data-view="bots">🤖 AIアシスタント紹介</button>
     <button class="tab" data-view="flow">🗺 概念図</button>
     <button class="tab" data-view="table">📋 ルール一覧</button>
     <button class="tab" data-view="channel">#️⃣ チャンネル別</button>
-    <button class="tab active" data-view="bots">🤝 Bot紹介</button>
   </div>
 
   <div class="filters">
@@ -206,7 +206,7 @@ body.locked > header, body.locked > main, body.locked > footer{filter:blur(6px);
     <p class="sub">投稿1件ごとのルール。チャンネルID・実装ファイルまで確認できます。</p>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>Bot</th><th>トリガー</th><th>投稿先チャンネル</th><th>投稿内容</th><th>実装</th></tr></thead>
+        <thead><tr><th>Bot</th><th>トリガー</th><th>投稿先チャンネル</th><th>投稿内容</th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
@@ -221,7 +221,7 @@ body.locked > header, body.locked > main, body.locked > footer{filter:blur(6px);
 
   <!-- Bot紹介 -->
   <section class="card" id="view-bots">
-    <h2>🤝 Bot紹介</h2>
+    <h2>🤖 AIアシスタント紹介</h2>
     <p class="sub">ワイズのSlack Botたちをご紹介します。それぞれひとこと↓</p>
     <div class="bot-intro-grid" id="botGrid"></div>
   </section>
@@ -318,35 +318,35 @@ const CH={
 const T={mail:'📧 メール受信',cron:'⏰ 定期実行',chat:'💬 対話/ボタン',fax:'📠 FAX着信',line:'📱 LINE',incident:'🚨 障害検知',dm:'✉️ DM'};
 const RULES=[
   // めるぼ（メール振り分け）
-  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（経理/請求）',ch:'keiri',c:'経理・請求メールの要約＋全文＋添付',src:'gmail_to_slack.mjs'},
-  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（求人）',ch:'kyujin',c:'求人系メール（※結yuiへ移行中）',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（経理/請求）',ch:'keiri',c:'経理・請求メールを要約してお届け',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（求人）',ch:'kyujin',c:'求人系メールを転送',src:'gmail_to_slack.mjs'},
   {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（M&A）',ch:'ma',c:'M&A・事業関連メール',src:'gmail_to_slack.mjs'},
-  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（人事）',ch:'jinji',c:'人事メール（スタッフ別スレッドに紐付け）',src:'gmail_to_slack.mjs'},
+  {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（人事）',ch:'jinji',c:'人事メールをスレッドに整理',src:'gmail_to_slack.mjs'},
   {bot:'めるぼ',t:'mail',trig:'メール受信→自動分類（助成金）',ch:'joseikin',c:'助成金・補助金メール',src:'gmail_to_slack.mjs'},
   {bot:'めるぼ',t:'mail',trig:'メール受信→分類外（その他）',ch:'other',c:'分類できないメール',src:'gmail_to_slack.mjs'},
   {bot:'めるぼ',t:'mail',trig:'ivry電話着信メール受信',ch:'ivry',c:'電話着信（ivry）通知',src:'gmail_to_slack.mjs'},
   {bot:'めるぼ',t:'incident',trig:'システム障害・異常検知',ch:'yakushoku',c:'インシデント通知',src:'gmail_to_slack.mjs'},
   {bot:'めるぼ',t:'chat',trig:'メンション／ボタン押下（カイゼンch内）',ch:'kaizen',c:'返信案・要約・メール検索・振り分け変更',src:'kaizen_listener.mjs'},
-  {bot:'めるぼ',t:'cron',trig:'定期実行（毎月6-8/10/15/20日・第1/5営業日）',ch:'other',c:'月次業務リマインド（KOT/請求書/業務数字/書類送付ほか）',src:'monthly_reminder.mjs'},
+  {bot:'めるぼ',t:'cron',trig:'定期実行（毎月6-8/10/15/20日・第1/5営業日）',ch:'other',c:'月次業務リマインド（KOT・請求書・業務数字ほか）',src:'monthly_reminder.mjs'},
   {bot:'めるぼ',t:'cron',trig:'定期実行（毎月第1営業日）',ch:'kaizen',c:'★年間カレンダー業務リマインド',src:'monthly_reminder.mjs',star:true},
   // 結yui
-  {bot:'結〈yui〉',t:'mail',trig:'recruit@メール受信',ch:'recruit',c:'求人メール要約・返信案・PDF抽出',src:'recruit_bot.mjs'},
+  {bot:'結〈yui〉',t:'mail',trig:'recruit@メール受信',ch:'recruit',c:'求人メール要約・返信案作成',src:'recruit_bot.mjs'},
   {bot:'結〈yui〉',t:'cron',trig:'定期巡回（5分/1時間・週次）',ch:'recruit',c:'未返信リマインド・週次採用ダイジェスト',src:'recruit_bot.mjs'},
-  {bot:'結〈yui〉',t:'chat',trig:'メンション／ボタン・モーダル',ch:'recruit',c:'メニュー・面接調整・採用確定処理',src:'recruit_bot.mjs'},
+  {bot:'結〈yui〉',t:'chat',trig:'メンション／ボタン・モーダル',ch:'recruit',c:'メニュー・面接調整・採用処理',src:'recruit_bot.mjs'},
   {bot:'結〈yui〉',t:'chat',trig:'不具合報告ボタン',ch:'kaizen',c:'不具合報告の転送',src:'recruit_bot.mjs'},
   // 経子
-  {bot:'経子',t:'mail',trig:'accounts@メール受信（5分ポーリング）',ch:'keiri',c:'請求メール要約＋全文＋添付',src:'accounts_bot.mjs'},
+  {bot:'経子',t:'mail',trig:'accounts@メール受信（5分ポーリング）',ch:'keiri',c:'請求メールを要約してお届け',src:'accounts_bot.mjs'},
   {bot:'経子',t:'chat',trig:'メンション／返信作成ボタン',ch:'keiri',c:'返信案・送信結果通知',src:'accounts_bot.mjs'},
   // 博士
-  {bot:'博士〈はかせ〉',t:'mail',trig:'academic@メール受信（5分ポーリング）',ch:'academic',c:'学術メール要約＋全文＋添付',src:'hakase_bot.mjs'},
-  {bot:'博士〈はかせ〉',t:'chat',trig:'メンション／返信・面談ボタン',ch:'academic',c:'返信案（承認ゲート経由）・面談設定',src:'hakase_bot.mjs'},
+  {bot:'博士〈はかせ〉',t:'mail',trig:'academic@メール受信（5分ポーリング）',ch:'academic',c:'学術メールを要約してお届け',src:'hakase_bot.mjs'},
+  {bot:'博士〈はかせ〉',t:'chat',trig:'メンション／返信・面談ボタン',ch:'academic',c:'返信案の作成・面談設定',src:'hakase_bot.mjs'},
   // はじめくん
   {bot:'はじめくん',t:'chat',trig:'開発依頼・メンション',ch:'honbu',c:'開発依頼の受付・記録・通知',src:'dev_kun.mjs'},
   {bot:'はじめくん',t:'chat',trig:'レビュー依頼ボタン',ch:'kaizen',c:'レビュー通知（本部WSカイゼンch）',src:'dev_kun.mjs'},
   {bot:'はじめくん',t:'dm',trig:'オーナー通知',ch:'dm',c:'開発チーム・オーナーへの通知',src:'dev_kun.mjs'},
   // FAX / LINE
-  {bot:'eFax（足立）',t:'fax',trig:'FAX着信メール検知',ch:'efax',c:'着信FAX PDFアップロード＋通知',src:'adachi_efax_bot/main.py'},
-  {bot:'MOVFAX（柏）',t:'fax',trig:'MOVFAX着信メール検知',ch:'movfax',c:'着信FAX PDF＋Gemini要約',src:'movfax_kashiwa/main.py'},
+  {bot:'eFax（足立）',t:'fax',trig:'FAX着信メール検知',ch:'efax',c:'FAX着信をPDFで通知',src:'adachi_efax_bot/main.py'},
+  {bot:'MOVFAX（柏）',t:'fax',trig:'MOVFAX着信メール検知',ch:'movfax',c:'FAX着信をAI要約して通知',src:'movfax_kashiwa/main.py'},
   {bot:'LINE転送',t:'line',trig:'LINEメッセージ受信（Webhook）',ch:'line',c:'LINEメッセージの要約を転送',src:'line_to_slack/server.mjs'},
 ];
 
@@ -465,9 +465,8 @@ function renderTable(){
       <td><span class="badge b-${r.t}">${T[r.t]}</span><br><span style="font-size:12px;color:#64748b">${r.trig}</span></td>
       <td><span class="chname">${r.star?'<span class="star">★</span> ':''}#${ch.n}</span><br><span class="chid">${ch.id}</span></td>
       <td>${r.c}</td>
-      <td class="src">${r.src}</td>
     </tr>`;
-  }).join('')||'<tr><td colspan="5" class="sub">該当なし</td></tr>';
+  }).join('')||'<tr><td colspan="4" class="sub">該当なし</td></tr>';
 }
 
 function renderChannels(){
