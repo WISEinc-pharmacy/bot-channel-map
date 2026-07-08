@@ -314,6 +314,7 @@ const CH={
   movfax:{n:'柏 FAX着信ch',id:'.env設定'},
   line:{n:'LINE転送先',id:'Webhook設定'},
   dm:{n:'山内さん DM',id:'DM'},
+  jinji_es:{n:'人事チャット',id:'C06PBEXSJSG'},
 };
 const T={mail:'📧 メール受信',cron:'⏰ 定期実行',chat:'💬 対話/ボタン',fax:'📠 FAX着信',line:'📱 LINE',incident:'🚨 障害検知',dm:'✉️ DM'};
 const RULES=[
@@ -344,6 +345,9 @@ const RULES=[
   {bot:'はじめくん',t:'chat',trig:'開発依頼・メンション',ch:'honbu',c:'開発依頼の受付・記録・通知',src:'dev_kun.mjs'},
   {bot:'はじめくん',t:'chat',trig:'レビュー依頼ボタン',ch:'kaizen',c:'レビュー通知（本部WSカイゼンch）',src:'dev_kun.mjs'},
   {bot:'はじめくん',t:'dm',trig:'オーナー通知',ch:'dm',c:'開発チーム・オーナーへの通知',src:'dev_kun.mjs'},
+  // ES（キャリアアップ担当）
+  {bot:'ES',t:'mail',trig:'es@メール受信（5分ポーリング）',ch:'jinji_es',c:'社員メールをキャリア管理スレッドへ転送',src:'es_bot.mjs'},
+  {bot:'ES',t:'cron',trig:'定期実行（毎月1日 9:30）',ch:'jinji_es',c:'キャリアアップ通知（転換・助成金・薬剤師2年）',src:'careerup_notify.mjs'},
   // FAX / LINE
   {bot:'eFax（足立）',t:'fax',trig:'FAX着信メール検知',ch:'efax',c:'FAX着信をPDFで通知',src:'adachi_efax_bot/main.py'},
   {bot:'MOVFAX（柏）',t:'fax',trig:'MOVFAX着信メール検知',ch:'movfax',c:'FAX着信をAI要約して通知',src:'movfax_kashiwa/main.py'},
@@ -395,6 +399,11 @@ const BOTS=[
     name:'LINE転送', photo:'', emoji:'📱', bg:'#dcfce7',
     role:'LINE→Slack転送 Bot',
     quote:'LINEに来たメッセージ、\nSlackに橋渡しします📱\n取引先からの連絡、\nタイムラグなくお届けしますね',
+  },
+  {
+    name:'ES', photo:'', emoji:'📋', bg:'#e0f2fe',
+    role:'キャリアアップ担当 Bot',
+    quote:'社員のキャリアアップ節目、\n私が記録して通知します📋\n転換・助成金・薬剤師2年目…\n見逃しを出さないようにサポートしますね',
   },
 ];
 
