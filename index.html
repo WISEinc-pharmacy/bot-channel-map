@@ -172,7 +172,7 @@ body.locked > header, body.locked > main, body.locked > footer{filter:blur(6px);
     <button class="tab" data-view="channel">#️⃣ チャンネル別</button>
   </div>
 
-  <div class="filters">
+  <div class="filters hide">
     <span class="flabel">トリガーで絞込:</span>
     <button class="chip active" data-t="all">すべて</button>
     <button class="chip" data-t="mail">📧 メール受信</button>
@@ -445,7 +445,7 @@ function renderFlow(){
         <div class="node n-ch">${r.star?'<span class="star">★</span>':''} #${ch.n}<small>${ch.id} ／ ${r.c}</small></div>
       </div>`;
     }).join('');
-    return `<div class="bot-group">
+    return `<div class="bot-group" id="flow-bot-${botName.replace(/[^\w぀-鿿]/g, '_')}">
       <div class="bot-group-hdr" aria-expanded="true" onclick="toggleGroup(this)">
         <span class="bot-group-name">🤖 ${botName}</span>
         <span class="bot-group-cnt">${rows.length}件</span>
@@ -491,7 +491,7 @@ function renderBots(){
       ? `<img src="${b.photo}" alt="${b.name}" style="width:100%;height:100%;object-fit:cover;">`
       : b.emoji;
     const bgStyle=b.photo ? '' : `background:${b.bg}`;
-    return `<div class="bot-intro-card">
+    return `<div class="bot-intro-card" data-bot-name="${b.name}">
       <div class="bot-avatar" style="${bgStyle}">${inner}</div>
       <div class="bi-name">${b.name}</div>
       <div class="bi-role">${b.role}</div>
@@ -499,6 +499,21 @@ function renderBots(){
       ${cnt?`<div class="bi-count">投稿ルール ${cnt}件</div>`:''}
     </div>`;
   }).join('');
+  document.querySelectorAll('.bot-intro-card').forEach(card=>{
+    card.style.cursor='pointer';
+    card.addEventListener('click',()=>{
+      const botName=card.dataset.botName;
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      const flowTab=document.querySelector('.tab[data-view="flow"]');
+      if(flowTab) flowTab.classList.add('active');
+      ['flow','table','channel','bots'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hide',x!=='flow'));
+      document.querySelector('.filters').classList.add('hide');
+      renderFlow();
+      const targetId='flow-bot-'+botName.replace(/[^\w぀-鿿]/g,'_');
+      const target=document.getElementById(targetId);
+      if(target) setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'start'}),50);
+    });
+  });
 }
 
 function renderAll(){renderFlow();renderTable();renderChannels();renderBots();}
@@ -508,6 +523,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   t.classList.add('active');
   const v=t.dataset.view;
   ['flow','table','channel','bots'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hide',x!==v));
+  document.querySelector('.filters').classList.toggle('hide',v!=='table'&&v!=='channel');
 });
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
   document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
